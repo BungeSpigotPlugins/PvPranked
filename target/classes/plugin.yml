@@ -1,0 +1,7 @@
+name: PvPRanked
+main: io.github.dave5080.PvPRanked
+version: Alpha
+author: Dave5080
+commands:
+    pvpranked:
+        description: Check your pvp stats.
