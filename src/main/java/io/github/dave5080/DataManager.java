@@ -3,15 +3,22 @@ package io.github.dave5080;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import ru.tehkode.permissions.PermissionGroup;
+import ru.tehkode.permissions.PermissionUser;
+import ru.tehkode.permissions.bukkit.PermissionsEx;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * Created by Dave5080 on 14/07/2017.
  */
 public class DataManager {
 
-    private PvPRanked plugin;
+    private PvPranked plugin;
     private String driver = "org.h2.Driver";
     private String url;
 
@@ -28,7 +35,7 @@ public class DataManager {
         return manager;
     }
     private DataManager(){
-        plugin = PvPRanked.getInstance();
+        plugin = PvPranked.getInstance();
         try {
             String db = plugin.getConfig().getString("database-type");
             switch (db.toLowerCase()) {
@@ -60,7 +67,6 @@ public class DataManager {
             newDB = conn.createStatement();
             newDB.execute(createDB);
         } catch (SQLException e) {
-            plugin.getPluginLogger().severe(e.getMessage());
         } finally {
             try {
                 conn.close();
@@ -104,8 +110,8 @@ public class DataManager {
 
                 conn = DriverManager.getConnection(url);
                 setValue = conn.prepareStatement(String.format(upVAL, column, "name"));
-                setValue.setString(1, name);
-                setValue.setInt(2, value);
+                setValue.setString(2, name);
+                setValue.setInt(1, value);
                 setValue.executeUpdate();
             }
         } catch (SQLException e) {
@@ -158,12 +164,14 @@ public class DataManager {
 
     public void setPvPoint(Player p,int point){
         setValue("pvpoints",p.getName(),point);
+        if(plugin.isUsingPex())
+        updateRank(p);
     }
 
     public void setDeath(Player p, int d){
         setValue("deaths",p.getName(),d);
     }
-    @Deprecated
+  
     public void addKills(Player p, int k){
         setKills(p, getKills(p)+k);
     }
@@ -171,7 +179,7 @@ public class DataManager {
     public void addPvPoint(Player p, int point){
         setPvPoint(p, getPvPoints(p)+point);
     }
-    @Deprecated
+
     public void addDeath(Player p, int d){
         setDeath(p, getDeaths(p)+d);
     }
@@ -184,15 +192,36 @@ public class DataManager {
 
     }
 
-    @Deprecated
+
     public void subKills(Player p, int i){
         i = getKills(p)-i > 0 ? getPvPoints(p)-i : 0;
         setPvPoint(p,i);
     }
 
-    @Deprecated
+
     public void subDeaths(Player p, int i){
         i = getDeaths(p)-i > 0 ? getPvPoints(p)-i : 0;
         setPvPoint(p,i);
+    }
+
+    public void updateRank(Player p){
+        List<PermissionGroup> groups = new ArrayList<>(PermissionsEx.getPermissionManager().getGroupList());
+        groups.sort(new Comparator<PermissionGroup>() {
+            @Override
+            public int compare(PermissionGroup o1, PermissionGroup o2) {
+                return o1.getOptionInteger("pvp","*",700) > o2.getOptionInteger("pvp","*",700) ? 1 : o1.getOptionInteger("pvp","*",700)<o2.getOptionInteger("pvp","*",700) ? -1 : 0;
+            }
+        });
+        PermissionUser user = PermissionsEx.getUser(p);
+        int points = getPvPoints(p);
+        for(PermissionGroup g : groups){
+            if(points >= g.getOptionInteger("pvp","*",700))
+                user.addGroup(g);
+        }
+        Collections.reverse(groups);
+        for(PermissionGroup g : groups){
+            if(points < g.getRank())
+                user.removeGroup(g);
+        }
     }
 }

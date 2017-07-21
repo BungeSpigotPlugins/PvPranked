@@ -1,10 +1,11 @@
-metrics: true
-prefix: "&7&l[&c&lPvP&e&l&7&l]"
+prefix: "&7&l[&c&lPvP&e&lranked&7&l]"
 
 # This are the points given on player's first join
 starting-points: 600
 
 allow-negative-points: false
+
+using-pex: false
 
 # The avaible database type are: h2 and mysql.
 # Any information under the "database" voice will be ignored iùwhith the h2 databasee type.
@@ -16,20 +17,21 @@ database:
     user: root
     password: secret
 
-your-stats: "Theese are your stats:"
-some-stats: "Theese are %player%'s stats:"
-delimiter: "&c------------------------------"
-point-name: "&cPvPoint(s)"
-stats-tag: "&cKills &6| &cDeaths &6| &cK/D"
-stats-string: "&c%kills% &6| &c%deaths% &c| &6%kd%"
-points-string: "%points% %pointname%"
-no-player: "You must be a player to extecute that command."
-stats-sound: ENTITY_PLAYER_LEVELUP
 
-customization:
+
+customizations:
    player-not-online: "&4%player% is not online!"
    unvalid-string: "&4%string% is not a valid integer!"
    not-positive: "&c%number% must be positive!"
    updated-points: "Succesfully updated %player%'s points to %points%!"
-   lose-points: "&c%player% killed you and subtracted you &point% PvPoints!"
-   win-points: "&a&player% you gained %point% by killing %player%!"
+   lose-points: "&c%player% killed you and subtracted you %points% PvPoints!"
+   win-points: "&aYou gained %points% PvPoints by killing %player%!"
+   your-stats: "&eTheese are your stats:"
+   some-stats: "Theese are %player%'s stats:"
+   delimiter: "&c------------------------------"
+   stats-tag: "&cKills &6| &cDeaths &6| &cK/D"
+   stats-string: "&c%kills% &6| &c%deaths% &c| &6%kd%"
+   points-string: "&cPvPoints: %points%"
+   rank-string: "Your actual rank is: %rank%"
+   not-a-player: "You must be a player to extecute that command."
+   stats-sound: ENTITY_PLAYER_LEVELUP

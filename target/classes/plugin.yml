@@ -1,7 +1,7 @@
-name: PvPRanked
-main: io.github.dave5080.PvPRanked
+name: PvPranked
+main: io.github.dave5080.PvPranked
 version: Alpha
 author: Dave5080
 commands:
-    pvpranked:
-        description: Check your pvp stats.
+  stats:
+    description: ciao

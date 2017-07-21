@@ -1,7 +1,8 @@
 package io.github.dave5080.listeners;
 
+import io.github.dave5080.Customizations;
 import io.github.dave5080.DataManager;
-import io.github.dave5080.PvPRanked;
+import io.github.dave5080.PvPranked;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -13,30 +14,35 @@ import org.bukkit.event.entity.PlayerDeathEvent;
  * Created by Dave5080 on 15/07/2017.
  */
 public class onKillPlayer implements Listener{
-    private PvPRanked plugin;
+    private PvPranked plugin;
     private DataManager dm;
 
     public onKillPlayer(){
-        plugin = PvPRanked.getInstance();
+        plugin = PvPranked.getInstance();
         dm = DataManager.getManager();
     }
 
     @EventHandler(priority = EventPriority.LOW)
     public void onPlayerKillPlaer(PlayerDeathEvent event){
         if(event.getEntity().getKiller() instanceof Player){
-            int killer = dm.getPvPoints(event.getEntity().getKiller());
-            int death = dm.getPvPoints(event.getEntity());
-            Integer pK = function(killer,death);
-            Integer dK = function(death,killer);
-            dm.subPvPoint(event.getEntity(),dK);
-            dm.addPvPoint(event.getEntity().getKiller(),pK);
-            event.getEntity().sendMessage(plugin.getPrefix()+ ChatColor.translateAlternateColorCodes('&',plugin.getConfig().getString("lose-points").replace("%player%",event.getEntity().getKiller().getName()).replace("%point%",dK.toString())));
-            event.getEntity().getKiller().sendMessage(plugin.getPrefix()+ ChatColor.translateAlternateColorCodes('&',plugin.getConfig().getString("win-points").replace("%player%",event.getEntity().getName()).replace("%point%",dK.toString())));
+            Player death = event.getEntity();
+            Player killer = death.getKiller();
+            int A = dm.getPvPoints(killer);
+            int B = dm.getPvPoints(death);
+            Integer val = A>B ? function(A,B,Math.min(A,B)) : function(A,B,Math.max(A,B));
+            dm.addPvPoint(killer,val);
+            dm.subPvPoint(death,val);
+            dm.addKills(killer, 1);
+            dm.addDeath(death,1);
+            death.sendMessage(Customizations.LOSE_POINTS.toString().replace("%player%",killer.getDisplayName()).replace("%points%",val.toString()));
+            killer.sendMessage(Customizations.WIN_POINTS.toString().replace("%player%",death.getDisplayName()).replace("%points%",val.toString()));
         }
     }
 
-    private int function(double A, double B){
-        Double d = (10 + Math.abs(B-A))/Math.exp(A/B);
+
+    private int function(double A, double B, double coeff){
+        Double d = 1+((10 + Math.abs(B-A))/Math.exp((Math.abs(B-A)/coeff)));
         return d.intValue();
     }
+
 }
